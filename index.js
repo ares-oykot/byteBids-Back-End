@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 
@@ -10,7 +10,6 @@ app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.202owzh.mongodb.net/?retryWrites=true&w=majority`;
-
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -22,6 +21,28 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
+        const jobsCollection = client.db('ByteBidsDB').collection('Jobs');
+        const bidsCollection = client.db('ByteBidsDB').collection('bids');
+
+        app.get('/jobs/:category' , async (req, res) => {
+            const category = req.params.category;
+            const cursor = jobsCollection.find({ category });
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.get('/job/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await jobsCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.post('/bids', async (req, res) => {
+            const bidInfo = req.body;
+            const result = await bidsCollection.insertOne(bidInfo);
+            res.send(result);
+        });
 
 
         await client.db("admin").command({ ping: 1 });
