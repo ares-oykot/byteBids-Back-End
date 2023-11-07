@@ -50,9 +50,18 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/bids', async (req, res) => {
+            let query = {};
+            if(req.query?.email){
+                query = { email: req.query?.email }
+            }
+            const cursor = bidsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
         app.post('/jwt', async (req, res) => {
             const user = req.body;
-            console.log(user);
             const token = jwt.sign(user, process.env.Secret, { expiresIn: '1h' });
             res
                 .cookie('token', token, {
