@@ -109,8 +109,29 @@ async function run() {
 
         app.delete('/jobs/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await jobsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        app.put('/jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedJob = req.body;
+            const job = {
+                $set: {
+                    title: updatedJob.title,
+                    img: updatedJob.img,
+                    deadline: updatedJob.deadline,
+                    price_range: updatedJob.price_range,
+                    short_description: updatedJob.short_description,
+                    description: updatedJob.description,
+                    buyer_Email: updatedJob.buyer_Email,
+                    category: updatedJob.category
+                }
+            }
+            const result = await jobsCollection.updateOne(filter, job, options);
             res.send(result);
         });
 
