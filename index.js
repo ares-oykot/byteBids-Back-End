@@ -30,7 +30,7 @@ async function run() {
         const jobsCollection = client.db('ByteBidsDB').collection('Jobs');
         const bidsCollection = client.db('ByteBidsDB').collection('bids');
 
-        app.get('/jobs/:category' , async (req, res) => {
+        app.get('/jobs/:category', async (req, res) => {
             const category = req.params.category;
             const cursor = jobsCollection.find({ category });
             const result = await cursor.toArray();
@@ -39,7 +39,7 @@ async function run() {
 
         app.get('/job/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await jobsCollection.findOne(query);
             res.send(result);
         });
@@ -50,8 +50,17 @@ async function run() {
             res.send(result);
         });
 
-        
-
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const token = jwt.sign(user, process.env.Secret, { expiresIn: '1h' });
+            res
+                .cookie('token', token, {
+                    httpOnly: true,
+                    secure: false,
+                })
+                .send({ success: true });
+        });
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -67,8 +76,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port : ${port}`);
 });
-
-
-
-
-
