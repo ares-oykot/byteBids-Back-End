@@ -8,7 +8,9 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5173',
+        'https://bytebids-eeafb.web.app',
+        'https://bytebids-eeafb.firebaseapp.com'],
     credentials: true
 }));
 app.use(express.json());
@@ -129,7 +131,8 @@ async function run() {
             res
                 .cookie('token', token, {
                     httpOnly: true,
-                    secure: false,
+                    secure: true,
+                    sameSite: 'none'
                 })
                 .send({ success: true });
         });
