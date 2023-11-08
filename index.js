@@ -91,6 +91,33 @@ async function run() {
             if (req.query?.email) {
                 query = { email: req.query?.email }
             }
+            const cursor = bidsCollection.find(query).sort({ status: -1 });
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.put('/bids/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedStatus = req.body;
+            const status = {
+                $set: {
+                    status: updatedStatus.status
+                }
+            }
+            const result = await bidsCollection.updateOne(filter, status, options);
+            res.send(result);
+        });
+
+        app.get('/bidsRequests', verifyToken, async (req, res) => {
+            if (req.query.email !== req.user.email) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+            let query = {};
+            if (req.query?.email) {
+                query = { buyer_Email: req.query?.email }
+            }
             const cursor = bidsCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
