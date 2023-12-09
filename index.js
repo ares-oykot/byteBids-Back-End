@@ -120,7 +120,7 @@ async function run() {
             if (req.query?.email) {
                 query = { buyer_Email: req.query?.email }
             }
-            const cursor = bidsCollection.find(query);
+            const cursor = bidsCollection.find(query);  
             const result = await cursor.toArray();
             res.send(result);
         });
